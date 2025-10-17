@@ -1,7 +1,10 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { Category } from "@prisma/client";
+import { FormDataType } from "@/type";
+import { Category, Product } from "@prisma/client";
+
+type ProductWithCategoryName = Product & { categoryName?: string };
 
 // functions de vérification de l'existance de l'utilisateur
 export async function checkAndAddUser(email: string, name: string) {
@@ -39,6 +42,8 @@ export async function getUser(email: string) {
     console.log(error);
   }
 }
+
+// C A T E G O R I E S
 
 // Création de catégorie
 export async function createCategory(
@@ -134,6 +139,165 @@ export async function readCategories(
       },
     });
     return categories;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// P R O D U I T S
+
+// Création de produit
+export async function createProduct(formData: FormDataType, email: string) {
+  try {
+    // verification sur le renseignement des champs
+    const { name, description, price, imageUrl, quantity, categoryId, unit } =
+      formData;
+    if (!email || !name || !categoryId || !email) {
+      throw new Error(
+        "Le nom, la catégorie et l'email sont requis pour la création du produit"
+      );
+    }
+    const safeImageUrl = imageUrl || "";
+    const safeUnit = unit || "";
+
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+    await prisma.product.create({
+      data: {
+        name,
+        description: description || "",
+        price: Number(price),
+        imageUrl: safeImageUrl,
+        categoryId,
+        unit: safeUnit,
+        associationId: user.id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// functiond de mise à jour
+export async function updateProduct(formData: FormDataType, email: string) {
+  try {
+    // verification sur le renseignement des champs
+    const { id, name, description, price, imageUrl, quantity } = formData;
+    if (!email || !name || !id || !email) {
+      throw new Error(
+        "L'id le nom et l'email sont requis pour la mise à jour du produit"
+      );
+    }
+
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+
+    await prisma.product.update({
+      where: {
+        id: id,
+        associationId: user.id,
+      },
+      data: {
+        name,
+        description: description || "",
+        price: Number(price),
+        imageUrl: imageUrl,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// function de suppression
+export async function deleteProduct(id: string, email: string) {
+  try {
+    // verification sur le renseignement des champs
+    if (!email || !id) {
+      throw new Error(
+        "L'id et l'email sont requis pour la suppression du produit"
+      );
+    }
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+    await prisma.product.delete({
+      where: {
+        id: id,
+        associationId: user.id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// affichage des Produits selon l'utilisateur
+export async function readProducts(
+  email: string
+): Promise<ProductWithCategoryName[] | undefined> {
+  // retourne une liste de catégories s'il y a sinon indefini
+  if (!email) {
+    throw new Error("L'email de l'utilisateur est requis");
+  }
+  try {
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+    const products = await prisma.product.findMany({
+      where: {
+        associationId: user.id, // seul l'utilisateur ayant créer la catégorie pourra modifier sa catégorie
+      },
+      include: {
+        category: true,
+      },
+    });
+    return products.map((product) => ({
+      ...product,
+      categoryName: product.category?.name,
+    }));
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// affichage chaque produit
+export async function readProductsById(
+  productId: string,
+  email: string
+): Promise<ProductWithCategoryName | undefined> {
+  // retourne une liste de catégories s'il y a sinon indefini
+  if (!email) {
+    throw new Error("L'email de l'utilisateur est requis");
+  }
+  try {
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+    const product = await prisma.product.findUnique({
+      where: {
+        id: productId,
+        associationId: user.id, // seul l'utilisateur ayant créer la catégorie pourra modifier sa catégorie
+      },
+      include: {
+        category: true,
+      },
+    });
+    if (!product) {
+      return undefined;
+    }
+
+    return {
+      ...product,
+      categoryName: product.category?.name,
+    };
   } catch (error) {
     console.log(error);
   }
