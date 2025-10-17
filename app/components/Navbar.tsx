@@ -29,7 +29,7 @@ const Navbar = () => {
             <Link
               href={href}
               key={href}
-              className={`${baseClass} ${activeClass} btn-sm flex gap-2 items-center`}
+              className={`${baseClass} ${activeClass} btn-sm flex gap-2 items-center rounded-lg`}
             >
               <Icon className="w-4 h-4" />
               {label}
