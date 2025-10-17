@@ -1,9 +1,14 @@
+import { UserButton, useUser } from "@clerk/nextjs";
 import { ListTree, Menu, PackagePlus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { checkAndAddUser } from "../actions";
 
 const Navbar = () => {
+  // recuperation des infos de l'utilisateur connecté
+  const { user } = useUser();
+
   // variable pour le lien actif
   const pathname = usePathname();
 
@@ -35,6 +40,12 @@ const Navbar = () => {
     );
   };
 
+  useEffect(() => {
+    if (user?.primaryEmailAddress?.emailAddress && user.fullName) {
+      checkAndAddUser(user?.primaryEmailAddress?.emailAddress, user.fullName);
+    }
+  }, [user]);
+
   return (
     <div className="border-b border-base-300 px-5 md:px-[10%] py-4 relative">
       <div className="flex justify-between items-center">
@@ -59,6 +70,9 @@ const Navbar = () => {
         {/* Appel de la fonction renderLinks */}
         <div className="hidden space-x-2 sm:flex items-center">
           {renderLinks("btn")}
+          <div className="border-2 border-primary rounded-full p-1 flex items-center justify-center shadow-sm hover:shadow-md transition">
+            <UserButton />
+          </div>
         </div>
         {/* fin appel */}
       </div>
@@ -69,6 +83,10 @@ const Navbar = () => {
         }`}
       >
         <div className="flex justify-between">
+          <div className="border-2 border-primary rounded-full p-1 flex items-center justify-center shadow-sm hover:shadow-md transition">
+            <UserButton />
+          </div>
+
           <button
             className="btn w-fit btn-sm sm:hidden"
             onClick={() => setMenuOpen(!menuOpen)}
