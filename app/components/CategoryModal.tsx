@@ -33,21 +33,25 @@ const CategoryModal: React.FC<Props> = ({
           </button>
         </form>
         <h3 className="font-bold text-lg mb-4">
-          {editMode ? "Modifier" : "Nouvelle catégorie"}
+          {editMode ? "Modifier la catégorie" : "Nouvelle catégorie"}
         </h3>
         <input
           type="text"
           value={name}
           onChange={(e) => onChangeName(e.target.value)}
           placeholder="Nom de la catégorie"
-          className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4"
+          className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 focus:border-primary mb-4"
         />
-        <input
-          type="text"
+        <textarea
           value={description}
-          onChange={(e) => onChangeDescription(e.target.value)}
+          onChange={(e) => {
+            onChangeDescription(e.target.value);
+            e.target.style.height = "auto"; // réinitialise la hauteur
+            e.target.style.height = e.target.scrollHeight + "px"; // ajuste selon le contenu
+          }}
           placeholder="Description de la catégorie"
-          className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4"
+          className="textarea textarea-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 overflow-hidden resize-none focus:border-primary"
+          rows={1}
         />
         <button
           className="btn btn-primary rounded-lg"

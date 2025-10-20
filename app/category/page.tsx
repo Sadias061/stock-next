@@ -78,9 +78,11 @@ const Page = () => {
       }
       await loadCategories();
       closeModal();
-      toast.success("Catégorie été mise à jour avec succès");
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
+      toast.success("Catégorie été mise à jour avec succès");
     }
   };
 

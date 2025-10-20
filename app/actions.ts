@@ -150,8 +150,7 @@ export async function readCategories(
 export async function createProduct(formData: FormDataType, email: string) {
   try {
     // verification sur le renseignement des champs
-    const { name, description, price, imageUrl, quantity, categoryId, unit } =
-      formData;
+    const { name, description, price, imageUrl, categoryId, unit } = formData;
     if (!email || !name || !categoryId || !email) {
       throw new Error(
         "Le nom, la catégorie et l'email sont requis pour la création du produit"
@@ -184,7 +183,7 @@ export async function createProduct(formData: FormDataType, email: string) {
 export async function updateProduct(formData: FormDataType, email: string) {
   try {
     // verification sur le renseignement des champs
-    const { id, name, description, price, imageUrl, quantity } = formData;
+    const { id, name, description, price, imageUrl } = formData;
     if (!email || !name || !id || !email) {
       throw new Error(
         "L'id le nom et l'email sont requis pour la mise à jour du produit"
