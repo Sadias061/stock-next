@@ -93,7 +93,7 @@ const Page = () => {
 
   return (
     <Wrapper>
-      <div className="flex justify-center items-center gap-5">
+      <div className="flex justify-center items-center">
         <div>
           <h1 className="text-2xl font-bold mb-4">
             Créer un <span className="text-primary">produit</span>
@@ -190,7 +190,7 @@ const Page = () => {
           </section>
         </div>
 
-        <div className="md:ml md:w-[300px] md:h-[300px] mt-4 border-2 border-primary rounded-3xl p-5 flex justify-center items-center">
+        <div className="md:ml-5 md:w-[300px] md:h-[300px] mt-4 border-2 border-primary rounded-3xl p-5 flex justify-center items-center">
           {previewUrl && previewUrl !== "" ? (
             <div className="text-center">
               <ProducImage

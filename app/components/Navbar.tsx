@@ -17,8 +17,9 @@ const Navbar = () => {
 
   // Une liste de liens dynamiques
   const navLinks = [
-    { href: "/category", label: "Catégories", icon: ListTree },
+    { href: "/products", label: "Produits", icon: ShoppingBasket },
     { href: "/new-product", label: "Nouveaux produits", icon: ShoppingBasket },
+    { href: "/category", label: "Catégories", icon: ListTree },
   ];
 
   // fonction pour mapper les liens
