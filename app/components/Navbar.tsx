@@ -1,5 +1,5 @@
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ListTree, Menu, PackagePlus, ShoppingBasket, X } from "lucide-react";
+import { ListTree, Menu, PackagePlus, PackageSearch, ShoppingBasket, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -18,7 +18,7 @@ const Navbar = () => {
   // Une liste de liens dynamiques
   const navLinks = [
     { href: "/products", label: "Produits", icon: ShoppingBasket },
-    { href: "/new-product", label: "Nouveaux produits", icon: ShoppingBasket },
+    { href: "/new-product", label: "Nouveaux produits", icon: PackageSearch },
     { href: "/category", label: "Catégories", icon: ListTree },
   ];
 

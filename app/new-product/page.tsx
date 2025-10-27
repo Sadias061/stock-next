@@ -70,23 +70,29 @@ const Page = () => {
       return;
     }
     try {
+      console.log("Envoi du fichier :", file.name);
       const imageData = new FormData();
       imageData.append("file", file);
+
       const req = await fetch("/api/upload", {
         method: "POST",
         body: imageData,
       });
+
       const data = await req.json();
-      if (!data.sucess) {
+      console.log("Réponse de l'API /api/upload :", data);
+
+      if (!data.success) {
         throw new Error("Erreur lors du téléchargement de l'image");
       } else {
         formData.imageUrl = data.path;
+        console.log("URL de l'image téléchargée :", formData.imageUrl);
         await createProduct(formData, email);
         toast.success("Produit créé avec succès");
         router.push("/products");
       }
     } catch (error) {
-      console.log(error);
+      console.error("Erreur dans handleSubmit :", error);
       toast.error(" il y a eu une erreur lors de la création du produit");
     }
   };
