@@ -8,7 +8,6 @@ import EmptyState from "../components/EmptyState";
 import ProducImage from "../components/ProducImage";
 import Link from "next/link";
 import { Trash } from "lucide-react";
-import path from "path";
 import { toast } from "react-toastify";
 
 const Page = () => {

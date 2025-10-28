@@ -301,3 +301,47 @@ export async function readProductsById(
     console.log(error);
   }
 }
+
+export async function replenIshStockWithTransaction(
+  productId: string,
+  quantityToAdd: number,
+  email: string
+) {
+  if (quantityToAdd <= 0) {
+    throw new Error("La quantité à ajouter doit être supérieure à 0");
+  }
+
+  if (!email) {
+    throw new Error("L'email de l'utilisateur est requis");
+  }
+  try {
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+    await prisma.product.update({
+      where: {
+        id: productId,
+        associationId: user.id, // seul l'utilisateur ayant créer la catégorie pourra modifier sa catégorie
+      },
+      data: {
+        quantity: {
+          increment: quantityToAdd,
+        },
+      },
+    });
+
+    await prisma.transaction.create({
+      data: {
+        productId: productId,
+        type: "IN",
+        quantity: quantityToAdd,
+        associationId: user.id,
+      },
+    });
+
+  } catch (error) {
+    console.log(error);
+  }
+
+}

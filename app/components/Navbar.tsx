@@ -1,9 +1,10 @@
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ListTree, Menu, PackagePlus, PackageSearch, ShoppingBasket, X } from "lucide-react";
+import { ListTree, Menu, PackagePlus, PackageSearch, ShoppingBasket, Warehouse, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { checkAndAddUser } from "../actions";
+import Stock from "./Stock";
 
 const Navbar = () => {
   // recuperation des infos de l'utilisateur connecté
@@ -40,6 +41,10 @@ const Navbar = () => {
             </Link>
           );
         })}
+
+        <button className="btn btn-sm rounded-lg" onClick={() => (document.getElementById('my_modal_stock') as HTMLDialogElement).showModal()}>
+          <Warehouse className="w-4 h-4" /> Alimenter le stock
+        </button>
       </>
     );
   };
@@ -100,6 +105,8 @@ const Navbar = () => {
         </div>
         {renderLinks("btn")}
       </div>
+
+      <Stock />
     </div>
   );
 };

@@ -99,7 +99,7 @@ const Page = () => {
 
   return (
     <Wrapper>
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center md:flex-row flex-col">
         <div>
           <h1 className="text-2xl font-bold mb-4">
             Créer un <span className="text-primary">produit</span>
@@ -113,7 +113,7 @@ const Page = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 focus:border-primary border-2"
+                className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 focus:border-secondary border-2"
               />
               {/* description */}
               <textarea
@@ -125,17 +125,19 @@ const Page = () => {
                   e.target.style.height = e.target.scrollHeight + "px"; // ajuste selon le contenu
                 }}
                 placeholder="Description du produit"
-                className="textarea textarea-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 overflow-hidden resize-none focus:border-primary"
+                className="textarea textarea-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 overflow-hidden resize-none focus:border-secondary"
                 rows={1}
               />
               {/* prix */}
               <input
+                title="Prix"
                 type="number"
                 placeholder="Prix du produit"
                 name="price"
                 value={formData.price}
                 onChange={handleChange}
-                className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 focus:border-primary border-2"
+                min={0}
+                className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 focus:border-secondary border-2"
               />
 
               {/* Catégorie associée */}
@@ -145,7 +147,7 @@ const Page = () => {
                 name="categoryId"
                 className="select select-bordered w-full border-2 rounded-lg
            focus:outline-none focus:ring-0 
-           focus:border-primary transition-colors duration-300 pl-2"
+           focus:border-secondary transition-colors duration-300 pl-2"
               >
                 <option>Selectionnez une catégorie</option>
                 {categories.map((cat) => (
@@ -162,7 +164,7 @@ const Page = () => {
                 name="unit"
                 className="select select-bordered w-full border-2 rounded-lg
            focus:outline-none focus:ring-0 
-           focus:border-primary transition-colors duration-300 pl-2"
+           focus:border-secondary transition-colors duration-300 pl-2"
               >
                 <option>Selectionnez une unité de mesure</option>
                 <option value="g">Gramme</option>
@@ -181,13 +183,13 @@ const Page = () => {
                 onChange={handleFileChange}
                 className="file-input file-input-bordered rounded-lg w-full 
                 border-2 focus:outline-none focus:ring-0 
-                focus:border-primary transition-colors duration-300
-                file:rounded-lg file:border-none file:bg-primary file:text-white file:w-40"
+                focus:border-secondary transition-colors duration-300
+                file:rounded-lg file:border-none file:bg-secondary file:text-white file:w-40"
               />
 
               <button
                 onClick={handleSubmit}
-                className="btn btn-primary rounded-lg w-full"
+                className="btn btn-secondary rounded-lg w-full"
               >
                 Créer le produit
               </button>

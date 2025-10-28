@@ -26,7 +26,7 @@ const CategoryModal: React.FC<Props> = ({
       <div className="modal-box">
         <form method="dialog">
           <button
-            className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+            className="btn btn-sm btn-circle btn-secondary absolute right-2 top-2"
             onClick={onclose}
           >
             ✕
@@ -40,7 +40,7 @@ const CategoryModal: React.FC<Props> = ({
           value={name}
           onChange={(e) => onChangeName(e.target.value)}
           placeholder="Nom de la catégorie"
-          className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 focus:border-primary mb-4"
+          className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 focus:border-secondary mb-4"
         />
         <textarea
           value={description}
@@ -50,11 +50,11 @@ const CategoryModal: React.FC<Props> = ({
             e.target.style.height = e.target.scrollHeight + "px"; // ajuste selon le contenu
           }}
           placeholder="Description de la catégorie"
-          className="textarea textarea-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 overflow-hidden resize-none focus:border-primary"
+          className="textarea textarea-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 overflow-hidden resize-none focus:border-secondary"
           rows={1}
         />
         <button
-          className="btn btn-primary rounded-lg"
+          className="btn btn-secondary px-16 rounded-lg"
           onClick={onSubmit}
           disabled={loading}
         >
