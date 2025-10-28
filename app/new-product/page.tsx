@@ -172,7 +172,6 @@ const Page = () => {
                 <option value="cm">Centimètre</option>
                 <option value="h">Heure</option>
                 <option value="pcs">Pièces</option>
-                <option value="pcs">XOF</option>
               </select>
 
               {/* Image du produit */}
@@ -181,9 +180,9 @@ const Page = () => {
                 accept="image/*"
                 onChange={handleFileChange}
                 className="file-input file-input-bordered rounded-lg w-full 
-           border-2 focus:outline-none focus:ring-0 
-           focus:border-primary transition-colors duration-300
-           file:rounded-lg file:border-none file:bg-primary file:text-white file:w-40"
+                border-2 focus:outline-none focus:ring-0 
+                focus:border-primary transition-colors duration-300
+                file:rounded-lg file:border-none file:bg-primary file:text-white file:w-40"
               />
 
               <button
