@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { FormDataType, Product, OrderItem } from "@/type";
+import { FormDataType, Product, OrderItem, Transaction } from "@/type";
 import { Category } from "@prisma/client";
 
 type ProductWithCategoryName = Product & { categoryName?: string };
@@ -271,11 +271,12 @@ export async function readProductsById(
   productId: string,
   email: string
 ): Promise<ProductWithCategoryName | undefined> {
-  // retourne une liste de catégories s'il y a sinon indefini
-  if (!email) {
-    throw new Error("L'email de l'utilisateur est requis");
-  }
+
   try {
+    // retourne une liste de catégories s'il y a sinon indefini
+    if (!email) {
+      throw new Error("L'email de l'utilisateur est requis");
+    }
     const user = await getUser(email);
     if (!user) {
       throw new Error("Aucun utilisateur trouvé avec cet email");
@@ -302,7 +303,7 @@ export async function readProductsById(
   }
 }
 
-export async function replenIshStockWithTransaction(
+export async function replenishStockWithTransaction(
   productId: string,
   quantityToAdd: number,
   email: string
@@ -413,5 +414,47 @@ export async function deductStockWithTransaction(
   } catch (error) {
     console.log(error);
     return { success: false, message: error };
+  }
+}
+
+export async function getTransactions(email: string, limit?: number): Promise<Transaction[]> {
+  try {
+    if (!email) {
+      throw new Error("L'email de l'utilisateur est requis");
+    }
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        associationId: user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit,
+      include: {
+        product: {
+          include: {
+            category: true,
+          },
+        },
+      },
+    });
+
+    return transactions.map((tx) => ({
+      ...tx,
+      categoryName: tx.product.category.name,
+      productName: tx.product.name,
+      imageUrl: tx.product.imageUrl,
+      price: tx.product.price,
+      unit: tx.product.unit,
+    }));
+
+  } catch (error) {
+    console.log(error);
+    return [];
   }
 }

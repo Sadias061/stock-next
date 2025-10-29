@@ -5,14 +5,16 @@ import { useUser } from "@clerk/nextjs";
 import { Product } from "@/type";
 import { deleteProduct, readProducts } from "../actions";
 import EmptyState from "../components/EmptyState";
-import ProducImage from "../components/ProducImage";
+import ProducImage from "../components/ProductImage";
 import Link from "next/link";
 import { Trash } from "lucide-react";
 import { toast } from "react-toastify";
 
 const Page = () => {
+  // Récupération de l'utilisateur connecté
   const { user } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress as string;
+  // État pour stocker les produits
   const [products, setProducts] = useState<Product[]>([]);
 
   const fetchProducts = useCallback(async () => {

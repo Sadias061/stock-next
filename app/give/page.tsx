@@ -7,9 +7,9 @@ import Wrapper from '../components/Wrapper';
 import { OrderItem, Product } from '@/type';
 import ProductComponent from '../components/ProductComponent';
 import EmptyState from '../components/EmptyState';
-import ProducImage from '../components/ProducImage';
 import { Trash } from 'lucide-react';
 import { toast } from 'react-toastify';
+import ProductImage from '../components/ProductImage';
 
 
 const Page = () => {
@@ -110,13 +110,22 @@ const Page = () => {
     }
 
     const handleConfirmDonation = async () => {
-       try {
-            if (orders.length === 0) {
+        try {
+            if (orders.length == 0) {
                 toast("Le panier est vide, veuillez ajouter des produits avant de confirmer le don.");
                 return;
             }
-            if (!email) {
-                toast.error("Email utilisateur manquant.");
+
+            // Vérifier si des quantités sont égales à 0
+            const invalidOrders = orders.filter(order => order.quantity <= 0);
+            if (invalidOrders.length > 0) {
+                toast.error("Impossible d'effectuer un don avec une quantité de 0.");
+                return;
+            }
+
+            // Demander confirmation si les quantités sont valides
+            const confirmation = window.confirm("Êtes-vous sûr de vouloir effectuer ce don ?");
+            if (!confirmation) {
                 return;
             }
 
@@ -133,9 +142,9 @@ const Page = () => {
                 toast.error(`${response?.message}`);
             }
 
-       } catch (error) {
+        } catch (error) {
             console.error("Erreur lors de la confirmation du don :", error);
-       }
+        }
     }
 
     return (
@@ -185,7 +194,7 @@ const Page = () => {
                                     {orders.map((item) => (
                                         <tr key={item.productId}>
                                             <td>
-                                                < ProducImage
+                                                <ProductImage
                                                     src={item.imageUrl}
                                                     alt={item.name}
                                                     heightClass="h-12"
@@ -198,7 +207,6 @@ const Page = () => {
                                                     type="number"
                                                     value={item.quantity}
                                                     min="1"
-                                                    max={item.availableQuantity}
                                                     onChange={(e) => handleQuantityChange(item.productId, Number(e.target.value))}
                                                     className="border border-base-300 w-25 rounded-lg p-2 focus:outline-none focus:ring-0 mb-4 focus:border-secondary "
                                                 />

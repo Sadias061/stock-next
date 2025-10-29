@@ -1,6 +1,6 @@
 import { Product } from '@/type';
 import React from 'react'
-import ProducImage from './ProducImage';
+import ProducImage from './ProductImage';
 import { Plus } from 'lucide-react';
 
 interface ProductComponentProps {

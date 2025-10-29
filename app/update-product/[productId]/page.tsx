@@ -1,6 +1,6 @@
 "use client";
 import { readProductsById, updateProduct } from '@/app/actions';
-import ProducImage from '@/app/components/ProducImage';
+import ProducImage from '@/app/components/ProductImage';
 import Wrapper from '@/app/components/Wrapper';
 import { FormDataType, Product } from '@/type';
 import { useUser } from '@clerk/nextjs';
@@ -92,51 +92,49 @@ const Page = ({ params }: { params: Promise<{ productId: string }> }) => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    let imageUrl = formData?.imageUrl;
     e.preventDefault();
-    // Logique de mise à jour du produit ici
-    console.log("Mise à jour du produit avec les données :", formData);
+    let imageUrl = formData?.imageUrl; // Conserver l'ancienne URL de l'image par défaut
+
     try {
-      if (file) {
-        const resDelete = await fetch("/api/upload", {
-          method: "DELETE",
-          body: JSON.stringify({ path: formData.imageUrl }),
-          headers: { "Content-Type": "application/json" }
-        })
-        const dataDelete = await resDelete.json()
-        if (!dataDelete.success) {
-          throw new Error("Erreur lors de la suppression de l'image")
+        if (file) {
+            // Si une nouvelle image est fournie, supprimer l'ancienne et uploader la nouvelle
+            const resDelete = await fetch("/api/upload", {
+                method: "DELETE",
+                body: JSON.stringify({ path: formData.imageUrl }),
+                headers: { "Content-Type": "application/json" },
+            });
+            const dataDelete = await resDelete.json();
+            if (!dataDelete.success) {
+                throw new Error("Erreur lors de la suppression de l'image");
+            }
+
+            const imageData = new FormData();
+            imageData.append("file", file);
+
+            const req = await fetch("/api/upload", {
+                method: "POST",
+                body: imageData,
+            });
+
+            const data = await req.json();
+            if (!data.success) {
+                throw new Error("Erreur lors du téléchargement de l'image");
+            }
+
+            imageUrl = data.path; // Mettre à jour l'URL de l'image
         }
-        console.log("Envoi du fichier :", file.name);
-        const imageData = new FormData();
-        imageData.append("file", file);
 
-        const req = await fetch("/api/upload", {
-          method: "POST",
-          body: imageData,
-        });
+        // Mettre à jour les données du produit
+        const updatedFormData = { ...formData, imageUrl };
+        await updateProduct(updatedFormData, email);
 
-        const data = await req.json();
-        // console.log("Réponse de l'API /api/upload :", data);
-        if (!data.success) {
-          throw new Error("Erreur lors du téléchargement de l'image");
-        }
-
-        imageUrl = data.path;
-        formData.imageUrl = imageUrl;
-
-        await updateProduct(formData, email);
-
-        toast.success("Produit mis à jour avec succès"); 
-
-        route.push('/products');
-
-      }
+        toast.success("Produit mis à jour avec succès");
+        route.push("/products");
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du produit :", error);
-      toast.error("Erreur lors de la mise à jour du produit");
+        console.error("Erreur lors de la mise à jour du produit :", error);
+        toast.error("Erreur lors de la mise à jour du produit");
     }
-  };
+};
 
   return (
     <Wrapper>

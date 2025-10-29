@@ -2,7 +2,7 @@
 import { Product } from '@/type';
 import { useUser } from '@clerk/nextjs';
 import React, { useCallback, useEffect, useState } from 'react'
-import { readProducts, replenIshStockWithTransaction } from '../actions';
+import { readProducts, replenishStockWithTransaction } from '../actions';
 import ProductComponent from './ProductComponent';
 import { toast } from 'react-toastify';
 
@@ -48,14 +48,14 @@ const Stock = () => {
         e.preventDefault();
         // Logique pour ajouter la quantité au stock du produit sélectionné
         if (!selectedProductId || quantity <= 0) {
-            toast.error("Veuillez sélectionner un produit et entrer une quantité valide.");
+            toast.error("Veuillez entrer une quantité supérieure à 0.");
             return;
         }
 
         try {
             if (email) {
                 // Appel à l'action pour ajouter la quantité au stock
-                await replenIshStockWithTransaction(selectedProductId, quantity, email);
+                await replenishStockWithTransaction(selectedProductId, quantity, email);
             }
             toast.success("Le stock a été réapprovisionné avec succès");
             fetchProducts();
@@ -117,6 +117,7 @@ const Stock = () => {
                             value={quantity}
                             onChange={(e) => setQuantity(Number(e.target.value))}
                             min={0}
+
                         />
 
                         <button className="btn btn-secondary w-fit rounded-lg mt-2" type="submit">

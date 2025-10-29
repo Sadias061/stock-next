@@ -6,7 +6,7 @@ import { Category } from "@prisma/client";
 import { FormDataType } from "@/type";
 import { createProduct, readCategories } from "../actions";
 import { FileImage } from "lucide-react";
-import ProducImage from "../components/ProducImage";
+import ProducImage from "../components/ProductImage";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -27,6 +27,7 @@ const Page = () => {
     unit: "",
     imageUrl: "",
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -64,7 +65,38 @@ const Page = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.name) {
+      newErrors.name = "Le nom du produit est requis.";
+    }
+    if (!formData.description) {
+      newErrors.description = "La description du produit est requise.";
+    }
+    if (!formData.price || formData.price <= 0) {
+      newErrors.price =
+        "Le prix du produit doit être supérieur à 0, et le pris est en $";
+    }
+    if (!formData.categoryId) {
+      newErrors.categoryId = "La catégorie du produit est requise.";
+    }
+    if (!formData.unit) {
+      newErrors.unit = "L'unité du produit est requise.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Retourne true si pas d'erreurs
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error("Veuillez remplir tous les champs requis.");
+      return;
+    }
+
     if (!file) {
       toast.error("Veuillez selectionner une image");
       return;
@@ -101,61 +133,96 @@ const Page = () => {
     <Wrapper>
       <div className="flex justify-center items-center md:flex-row flex-col">
         <div>
-          <h1 className="text-2xl font-bold mb-4">
-            Créer un produit
-          </h1>
+          <h1 className="text-2xl font-bold mb-4">Créer un produit</h1>
           <section className="flex md:flex-row flex-col">
             <div className="space-y-4 md:w-[450px]">
               {/* nom produit */}
-              <input
-                type="text"
-                placeholder="Nom du produit"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 focus:border-secondary border-2"
-              />
+              <div className="form-control w-full mb-4">
+                <input
+                  type="text"
+                  placeholder="Nom du produit"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0  border-2"
+                />
+                {errors.name && (
+                  <label className="label">
+                    <span className="label-text-alt text-red-500">
+                      {errors.name}
+                    </span>
+                  </label>
+                )}
+              </div>
               {/* description */}
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={(e) => {
-                  handleChange(e);
-                  e.target.style.height = "auto"; // réinitialise la hauteur
-                  e.target.style.height = e.target.scrollHeight + "px"; // ajuste selon le contenu
-                }}
-                placeholder="Description du produit"
-                className="textarea textarea-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 overflow-hidden resize-none focus:border-secondary"
-                rows={1}
-              />
+              <div className="form-control w-full mb-4">
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={(e) => {
+                    handleChange(e);
+                    e.target.style.height = "auto"; // réinitialise la hauteur
+                    e.target.style.height = e.target.scrollHeight + "px"; // ajuste selon le contenu
+                  }}
+                  placeholder="Description du produit"
+                  className="textarea textarea-bordered rounded-lg w-full focus:outline-none focus:ring-0  overflow-hidden resize-none focus:border-secondary"
+                  rows={1}
+                />
+                {errors.description && (
+                  <label className="label">
+                    <span className="label-text-alt text-red-500">
+                      {errors.description}
+                    </span>
+                  </label>
+                )}
+              </div>
+
               {/* prix */}
-              <input
-                title="Prix"
-                type="number"
-                placeholder="Prix du produit"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                min={0}
-                className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 mb-4 focus:border-secondary border-2"
-              />
+              <div className="form-control w-full mb-4">
+                <input
+                  title="Prix"
+                  type="number"
+                  placeholder="Prix du produit"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  min={0}
+                  className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0  border-2"
+                />
+                {errors.price && (
+                  <label className="label">
+                    <span className="label-text-alt text-red-500">
+                      {errors.price}
+                    </span>
+                  </label>
+                )}
+              </div>
 
               {/* Catégorie associée */}
-              <select
-                value={formData.categoryId}
-                onChange={handleChange}
-                name="categoryId"
-                className="select select-bordered w-full border-2 rounded-lg
-           focus:outline-none focus:ring-0 
-           focus:border-secondary transition-colors duration-300 pl-2"
-              >
-                <option>Selectionnez une catégorie</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+              <div className="form-control w-full mb-4">
+                <select
+                  value={formData.categoryId}
+                  onChange={handleChange}
+                  name="categoryId"
+                  className="select select-bordered w-full border-2 rounded-lg
+                    focus:outline-none focus:ring-0 
+                    focus:border-secondary transition-colors duration-300 pl-2"
+                >
+                  <option>Selectionnez une catégorie</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.categoryId && (
+                  <label className="label">
+                    <span className="label-text-alt text-red-500">
+                      {errors.categoryId}
+                    </span>
+                  </label>
+                )}
+              </div>
 
               {/* Unité de mesure */}
               <select
@@ -163,8 +230,8 @@ const Page = () => {
                 onChange={handleChange}
                 name="unit"
                 className="select select-bordered w-full border-2 rounded-lg
-           focus:outline-none focus:ring-0 
-           focus:border-secondary transition-colors duration-300 pl-2"
+                  focus:outline-none focus:ring-0 
+                  focus:border-secondary transition-colors duration-300 pl-2"
               >
                 <option>Selectionnez une unité de mesure</option>
                 <option value="g">Gramme</option>
@@ -175,6 +242,13 @@ const Page = () => {
                 <option value="h">Heure</option>
                 <option value="pcs">Pièces</option>
               </select>
+              {errors.unit && (
+                <label className="label">
+                  <span className="label-text-alt text-red-500">
+                    {errors.unit}
+                  </span>
+                </label>
+              )}
 
               {/* Image du produit */}
               <input
