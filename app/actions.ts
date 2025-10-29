@@ -1,8 +1,8 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { FormDataType } from "@/type";
-import { Category, Product } from "@prisma/client";
+import { FormDataType, Product, OrderItem } from "@/type";
+import { Category } from "@prisma/client";
 
 type ProductWithCategoryName = Product & { categoryName?: string };
 
@@ -344,4 +344,74 @@ export async function replenIshStockWithTransaction(
     console.log(error);
   }
 
+}
+
+
+// deduction de stock avec création de transaction
+export async function deductStockWithTransaction(
+  orderItems: OrderItem[], email: string
+) {
+
+  try {
+    if (!email) {
+      throw new Error("L'email de l'utilisateur est requis");
+    }
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+
+    for (const item of orderItems) {
+      const product = await prisma.product.findUnique({
+        where: {
+          id: item.productId,
+        },
+      });
+      // vérification de l'existence du produit et de la quantité disponible
+      if (!product) {
+        throw new Error(`Produit non trouvé avec l'id : ${item.productId}`);
+      }
+
+      // vérification de la quantité demandée
+      if (product.quantity <= 0) {
+        throw new Error(`La quantité demandée pour le produit : ${product.name} doit être supérieure à zéro.`);
+      }
+
+      // vérification de la quantité disponible
+      if (product.quantity < item.quantity) {
+        throw new Error(`Le produit "${product.name}" n'a pas assez de stock. Demandé: ${item.quantity}, Disponible: ${product.quantity} / ${product.unit}.`)
+      }
+
+    }
+    // Si toutes les vérifications sont passées, procéder à la mise à jour des stocks et à la création des transactions
+    await prisma.$transaction(async (tx) => {
+      for (const item of orderItems) {
+        await tx.product.update({
+          where: {
+            id: item.productId,
+            associationId: user.id,
+          },
+          data: {
+            quantity: {
+              decrement: item.quantity, // décrémente la quantité du stock en fonction de la quantité donnée
+            },
+          },
+        });
+        await tx.transaction.create({
+          data: {
+            productId: item.productId,
+            type: "OUT", // type de transaction de sortie
+            quantity: item.quantity,
+            associationId: user.id,
+          },
+        });
+      }
+    });
+
+    return { success: true };
+
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: error };
+  }
 }

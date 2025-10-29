@@ -102,7 +102,7 @@ const Page = () => {
       <div className="flex justify-center items-center md:flex-row flex-col">
         <div>
           <h1 className="text-2xl font-bold mb-4">
-            Créer un <span className="text-primary">produit</span>
+            Créer un produit
           </h1>
           <section className="flex md:flex-row flex-col">
             <div className="space-y-4 md:w-[450px]">

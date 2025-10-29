@@ -38,10 +38,10 @@ const ProductComponent: React.FC<ProductComponentProps> = ({ product, add, handl
 
                 {add && handleAddToCart && (
                     <button
-                        className="btn btn-primary btn-circle btn-sm mt-2"
+                        className="btn btn-secondary btn-circle btn-sm mt-2"
                         onClick={() => handleAddToCart(product, 1)}
                     >
-                       <Plus  className="w-4 h-4" />   Ajouter au panier
+                       <Plus  className="w-4 h-4" />
                     </button>
                 )}
             </div>

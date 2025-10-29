@@ -82,7 +82,7 @@ const Stock = () => {
                         {/* if there is a button in form, it will close the modal */}
                         <button className="btn btn-sm btn-circle btn-secondary absolute right-2 top-2">✕</button>
                     </form>
-                    <h3 className="font-bold text-lg">Gestion de <span className='text-secondary'>stock</span></h3>
+                    <h3 className="font-bold text-lg">Gestion de stock</h3>
                     <p className="py-4">Ajouter des quantité aux produits disponibles dans votre stock</p>
 
                     <form className="space-y-2" onSubmit={handleSubmit}>

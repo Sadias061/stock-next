@@ -1,5 +1,5 @@
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ListTree, Menu, PackagePlus, PackageSearch, ShoppingBasket, Warehouse, X } from "lucide-react";
+import { HandHeart, ListTree, Menu, PackagePlus, PackageSearch, ShoppingBasket, Warehouse, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -21,6 +21,7 @@ const Navbar = () => {
     { href: "/products", label: "Produits", icon: ShoppingBasket },
     { href: "/new-product", label: "Nouveaux produits", icon: PackageSearch },
     { href: "/category", label: "Catégories", icon: ListTree },
+    { href: "/give", label: "Donner", icon: HandHeart },
   ];
 
   // fonction pour mapper les liens
