@@ -370,17 +370,28 @@ export async function deductStockWithTransaction(
       });
       // vérification de l'existence du produit et de la quantité disponible
       if (!product) {
-        throw new Error(`Produit non trouvé avec l'id : ${item.productId}`);
+        return { success: false, message: `Produit non trouvé avec l'id : ${item.productId}`, code: 'PRODUCT_NOT_FOUND', productId: item.productId };
       }
 
       // vérification de la quantité demandée
       if (product.quantity <= 0) {
-        throw new Error(`La quantité demandée pour le produit : ${product.name} doit être supérieure à zéro.`);
+        // Retourner une réponse structurée permettant au client d'afficher un lien / action de réapprovisionnement
+        return {
+          success: false,
+          message: `Le produit "${product.name}" est en rupture de stock. Veuillez le réapprovisionner.`,
+          code: 'OUT_OF_STOCK',
+          productId: product.id,
+        };
       }
 
       // vérification de la quantité disponible
       if (product.quantity < item.quantity) {
-        throw new Error(`Le produit "${product.name}" n'a pas assez de stock. Demandé: ${item.quantity}, Disponible: ${product.quantity} / ${product.unit}.`)
+        return {
+          success: false,
+          message: `Le produit "${product.name}" n'a pas assez de stock. Demandé: ${item.quantity}, Disponible: ${product.quantity} / ${product.unit}.`,
+          code: 'INSUFFICIENT_STOCK',
+          productId: product.id,
+        };
       }
 
     }
@@ -413,7 +424,7 @@ export async function deductStockWithTransaction(
 
   } catch (error) {
     console.log(error);
-    return { success: false, message: error };
+    return { success: false, message: error instanceof Error ? error.message : String(error) };
   }
 }
 

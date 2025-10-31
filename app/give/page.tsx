@@ -139,7 +139,42 @@ const Page = () => {
                 // Rafraîchir la liste des produits disponibles
                 fetchProducts();
             } else {
-                toast.error(`${response?.message}`);
+                // Si le produit est en rupture de stock, proposer le réapprovisionnement via la modal "Alimenter le stock" présente dans la navbar
+                const msg = response?.message || "Une erreur est survenue";
+                if (response?.code === 'OUT_OF_STOCK') {
+                    // Afficher un toast interactif avec action de réapprovisionnement
+                    const toastId = toast.info(
+                        <div className="flex flex-col gap-2">
+                            <div>{msg}</div>
+                            <div className="flex gap-2 mt-2">
+                                <button
+                                    className="btn btn-sm btn-secondary"
+                                    onClick={() => {
+                                        const modal = document.getElementById('my_modal_stock') as HTMLDialogElement | null;
+                                        if (modal) {
+                                            modal.showModal();
+                                        } else {
+                                            // fallback: rediriger vers la page produits
+                                            window.location.href = '/products';
+                                        }
+                                        toast.dismiss(toastId);
+                                    }}
+                                >
+                                    Réapprovisionner
+                                </button>
+                                <button
+                                    className="btn btn-sm"
+                                    onClick={() => toast.dismiss(toastId)}
+                                >
+                                    Annuler
+                                </button>
+                            </div>
+                        </div>,
+                        { autoClose: false }
+                    );
+                } else {
+                    toast.error(msg);
+                }
             }
 
         } catch (error) {
@@ -158,7 +193,7 @@ const Page = () => {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    <div className="space-y-2">
+                    <div className="space-y-2 md:max-h-[70vh] max-h-[50vh] overflow-y-auto pr-4">
                         {filteredAvailableProducts.length > 0 ? (
                             filteredAvailableProducts.map((product, index) => (
                                 <ProductComponent
@@ -186,6 +221,7 @@ const Page = () => {
                                         <th>Image</th>
                                         <th>Nom</th>
                                         <th>Quantité</th>
+                                        <th>Disponible</th>
                                         <th>Unité</th>
                                         <th>Actions</th>
                                     </tr>
@@ -210,6 +246,9 @@ const Page = () => {
                                                     onChange={(e) => handleQuantityChange(item.productId, Number(e.target.value))}
                                                     className="border border-base-300 w-25 rounded-lg p-2 focus:outline-none focus:ring-0 mb-4 focus:border-secondary "
                                                 />
+                                            </td>
+                                            <td className={`text-center text-xl ${item.availableQuantity <= 0 ? 'text-red-600 ' : 'text-green-600'}`}>
+                                                {item.availableQuantity}
                                             </td>
                                             <td className="capitalize">{item.unit}</td>
                                             <td>
