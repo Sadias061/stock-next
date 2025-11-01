@@ -150,12 +150,22 @@ const Page = () => {
                                 <button
                                     className="btn btn-sm btn-secondary"
                                     onClick={() => {
-                                        const modal = document.getElementById('my_modal_stock') as HTMLDialogElement | null;
-                                        if (modal) {
-                                            modal.showModal();
-                                        } else {
-                                            // fallback: rediriger vers la page produits
-                                            window.location.href = '/products';
+                                        // Émettre un événement personnalisé contenant productId afin
+                                        // que le composant Stock puisse pré-sélectionner le produit
+                                        // et ouvrir la modal. On utilise un CustomEvent nommé
+                                        // 'openStockModal' avec l'id dans detail. Si l'émission
+                                        // échoue (anciens navigateurs), on redirige vers /products
+                                        // avec le productId en query param en fallback.
+                                        const productId = response?.productId || null;
+                                        try {
+                                            window.dispatchEvent(new CustomEvent('openStockModal', { detail: { productId } }));
+                                        } catch {
+                                            // Fallback for older browsers: set location with query param
+                                            if (productId) {
+                                                window.location.href = `/products?productId=${productId}`;
+                                            } else {
+                                                window.location.href = '/products';
+                                            }
                                         }
                                         toast.dismiss(toastId);
                                     }}

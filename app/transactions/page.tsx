@@ -14,6 +14,8 @@ const Page = () => {
     const email = user?.primaryEmailAddress?.emailAddress as string;
     // État pour stocker les produits
     const [products, setProducts] = useState<Product[]>([]);
+    // Conserver la liste complète récupérée depuis l'API pour filtrages sans provoquer de boucle
+    const [allProducts, setAllProducts] = useState<Product[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
 
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -34,6 +36,7 @@ const Page = () => {
                         ...product,
                         categoryName: product.categoryName || "Inconnu", // Valeur par défaut
                     }));
+                    setAllProducts(formattedProducts);
                     setProducts(formattedProducts);
                 }
                 if (transactions) {
@@ -85,14 +88,17 @@ const Page = () => {
     };
 
     useEffect(() => {
+        // Utiliser allProducts comme source de vérité pour le filtrage afin d'éviter
+        // une boucle infinie causée par setProducts modifiant `products` déclenchant
+        // à nouveau cet effet.
         if (!dateStart && !dateEnd) {
             // Si aucun intervalle n'est sélectionné, afficher tous les produits
-            setProducts(products);
+            setProducts(allProducts);
             return;
         }
 
         // Filtrer les produits ayant des transactions dans l'intervalle sélectionné
-        const filteredProducts = products.filter((product) => {
+        const filteredProducts = allProducts.filter((product) => {
             return transactions.some((tx) => {
                 const txDate = new Date(tx.createdAt).getTime(); // Convertir en timestamp
                 const startOfDay = dateStart ? new Date(dateStart).setHours(0, 0, 0, 0) : null;
@@ -107,7 +113,7 @@ const Page = () => {
         });
 
         setProducts(filteredProducts);
-    }, [dateStart, dateEnd, transactions, products]);
+    }, [dateStart, dateEnd, transactions, allProducts]);
 
     // Correction de la syntaxe pour réinitialiser les filtres
     const resetFilters = () => {
@@ -132,7 +138,7 @@ const Page = () => {
                                 focus:border-secondary transition-colors duration-300 pl-2 md:w-64"
                         >
                             <option value="">Tous les produits</option>
-                            {products.map((p) => (
+                            {allProducts.map((p) => (
                                 <option key={p.id} value={p.id}>{p.name}</option>
                             ))}
                         </select>

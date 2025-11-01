@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { FormDataType, Product, OrderItem, Transaction } from "@/type";
+import { FormDataType, Product, OrderItem, Transaction, ProductOverViewStats, StockSummary } from "@/type";
 import { Category } from "@prisma/client";
 
 type ProductWithCategoryName = Product & { categoryName?: string };
@@ -467,5 +467,142 @@ export async function getTransactions(email: string, limit?: number): Promise<Tr
   } catch (error) {
     console.log(error);
     return [];
+  }
+}
+
+export async function getProductOverViewStats(email: string): Promise<ProductOverViewStats> {
+  try {
+    if (!email) {
+      throw new Error("L'email de l'utilisateur est requis");
+    }
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        associationId: user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        category: true,
+      },
+    });
+
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        associationId: user.id,
+      },
+    });
+
+    const categoriesSet = new Set(products.map((product) => product.category.name));
+
+    const totalProducts = products.length;
+    const totalCategories = categoriesSet.size;
+    const totalTransactions = transactions.length;
+    const stockValue = products.reduce((total, product) => {
+      return total + (product.price * product.quantity);
+    }, 0);
+
+    return {
+      totalProducts,
+      totalCategories,
+      totalTransactions,
+      stockValue,
+    };
+
+  } catch (error) {
+    console.log(error);
+
+    return {
+      totalProducts: 0,
+      totalCategories: 0,
+      totalTransactions: 0,
+      stockValue: 0,
+    };
+  }
+}
+
+export async function getCategoryProductCategoryDistribution(email: string) {
+  try {
+    if (!email) {
+      throw new Error("L'email de l'utilisateur est requis");
+    }
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+
+    const R = 5;
+
+    const categoriesWithProductCount = await prisma.category.findMany({
+      where: {
+        associationId: user.id,
+      },
+      include: {
+        products: { select: { id: true } },
+      },
+    });
+
+    const data = categoriesWithProductCount.map((category) => ({
+      name: category.name,
+      value: category.products.length,
+    })).sort((a, b) => b.value - a.value)
+      .slice(0, R);
+
+    return data;
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+export async function getStockSummary(email: string): Promise<StockSummary> {
+  try {
+    if (!email) {
+      throw new Error("L'email de l'utilisateur est requis");
+    }
+    const user = await getUser(email);
+    if (!user) {
+      throw new Error("Aucun utilisateur trouvé avec cet email");
+    }
+
+    const allProducts = await prisma.product.findMany({
+      where: {
+        associationId: user.id,
+      },
+      include: {
+        category: true,
+      },
+    });
+
+    const inStock = allProducts.filter((p) => p.quantity > 5)
+    const lowStock = allProducts.filter((p) => p.quantity <= 5 && p.quantity > 0)
+    const outOfStock = allProducts.filter((p) => p.quantity === 0)
+    const cristalProducts = [...lowStock, ...outOfStock]
+
+    return {
+      inStockCount: inStock.length,
+      lowStockCount: lowStock.length,
+      outOfStockCount: outOfStock.length,
+      cristalProducts: cristalProducts.map((p) => ({
+        ...p,
+        categoryName: p.category.name
+      }))
+    }
+
+  } catch (error) {
+    console.log(error);
+
+    return {
+      inStockCount: 0,
+      lowStockCount: 0,
+      outOfStockCount: 0,
+      cristalProducts: []
+    }
   }
 }

@@ -5,7 +5,6 @@ export interface Product extends PrismaProduct {
   categoryName: string;
 }
 
-// Données de Produit
 export interface FormDataType {
   id?: string;
   name: string;
@@ -18,8 +17,7 @@ export interface FormDataType {
   imageUrl?: string;
 }
 
-
-export interface OrderItem{
+export interface OrderItem {
   productId: string;
   quantity: number;
   unit: string,
@@ -34,4 +32,23 @@ export interface Transaction extends PrismaTransaction {
   imageUrl?: string;
   price: number;
   unit: string;
+}
+
+export interface ProductOverViewStats {
+  totalProducts: number,
+  totalCategories: number,
+  totalTransactions: number,
+  stockValue: number
+}
+
+export interface ChartData {
+  name: string;
+  value: number;
+}
+
+export interface StockSummary {
+  inStockCount: number,
+  lowStockCount: number,
+  outOfStockCount: number,
+  cristalProducts: Product[]
 }

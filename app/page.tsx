@@ -1,10 +1,28 @@
 "use client";
+import { useUser } from "@clerk/nextjs";
 import Wrapper from "./components/Wrapper";
+import ProductOverView from "./components/ProductOverView";
+import CategoryChart from "./components/CategoryChart";
+import RecentTransactions from "./components/RecentTransactions";
+import StockSummaryTable from "./components/StockSummaryTable";
 
 export default function Home() {
+
+  const { user } = useUser();
+  const email = user?.primaryEmailAddress?.emailAddress as string;
+
   return (
     <Wrapper>
-      <button className="btn btn-primary">Bonsoir</button>
-    </Wrapper>
+      <div className="flex flex-col md:flex-row">
+        <div className="md:w-2/3">
+          <ProductOverView email={email} />
+          <CategoryChart email={email} />
+          <RecentTransactions email={email} />
+        </div>
+        <div className="md:ml-4 md:mt-0 mt-4 md:w-1/3">
+          <StockSummaryTable email={email} />
+        </div>
+      </div>
+    </Wrapper >
   );
 }

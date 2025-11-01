@@ -144,7 +144,7 @@ const Page = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0  border-2"
+                  className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 focus:border-secondary  border-2"
                 />
                 {errors.name && (
                   <label className="label">
@@ -187,7 +187,7 @@ const Page = () => {
                   value={formData.price}
                   onChange={handleChange}
                   min={0}
-                  className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0  border-2"
+                  className="input input-bordered rounded-lg w-full focus:outline-none focus:ring-0 focus:border-secondary border-2"
                 />
                 {errors.price && (
                   <label className="label">

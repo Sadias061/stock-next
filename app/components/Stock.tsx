@@ -34,10 +34,54 @@ const Stock = () => {
         }
     }, [email]);
 
+    // Au montage du composant, récupérer la liste des produits pour le select.
+    // On conserve la liste `products` en state afin de pouvoir pré-sélectionner
+    // un produit lorsqu'un autre composant déclenche l'événement `openStockModal`.
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
 
+    // Écoute d'un événement personnalisé émis par un autre composant/page
+    // (par exemple : la page Give quand l'utilisateur clique sur "Réapprovisionner").
+    // Le détail de l'événement contient { productId } pour permettre la pré-sélection.
+    useEffect(() => {
+        const handler = (e: Event) => {
+            // Caster en CustomEvent pour accéder à detail
+            const ev = e as CustomEvent<{ productId: string | null }>;
+            const pid = ev?.detail?.productId;
+
+            if (pid) {
+                // Si la liste des produits est déjà chargée, trouver le produit et le sélectionner.
+                const prod = products.find((p) => p.id === pid);
+                if (prod) {
+                    setSelectedProductId(pid);
+                    setSelectedProduct(prod);
+                } else {
+                    // Sinon, conserver l'id pour le sélectionner après le chargement des produits.
+                    setSelectedProductId(pid);
+                }
+            }
+
+            // Ouvrir la modal (ne fera rien si elle n'est pas montée).
+            const modal = document.getElementById('my_modal_stock') as HTMLDialogElement | null;
+            if (modal) modal.showModal();
+        };
+
+        window.addEventListener('openStockModal', handler as EventListener);
+        return () => window.removeEventListener('openStockModal', handler as EventListener);
+    }, [products]);
+
+    // Si selectedProductId est défini mais que selectedProduct n'est pas encore peuplé,
+    // essayer de le sélectionner lorsque products change
+    useEffect(() => {
+        if (selectedProductId && !selectedProduct && products.length > 0) {
+            const prod = products.find((p) => p.id === selectedProductId);
+            if (prod) setSelectedProduct(prod);
+        }
+    }, [selectedProductId, products, selectedProduct]);
+
+    // Met à jour le produit sélectionné et son id lorsque l'utilisateur choisit
+    // un produit dans le select.
     const handleProductChange = (productId: string) => {
         const product = products.find((p) => p.id === productId);
         setSelectedProduct(product || null);
@@ -75,11 +119,11 @@ const Stock = () => {
 
     return (
         <div>
-            {/* You can open the modal using document.getElementById('ID').showModal() method */}
+            {/* On peut ouvrir la modal via document.getElementById('ID').showModal() */}
             <dialog id="my_modal_stock" className="modal">
                 <div className="modal-box">
                     <form method="dialog">
-                        {/* if there is a button in form, it will close the modal */}
+                        {/* si le formulaire contient un bouton, il fermera la modal (method dialog) */}
                         <button className="btn btn-sm btn-circle btn-secondary absolute right-2 top-2">✕</button>
                     </form>
                     <h3 className="font-bold text-lg">Gestion de stock</h3>
@@ -88,6 +132,9 @@ const Stock = () => {
                     <form className="space-y-2" onSubmit={handleSubmit}>
                         <label className='block'>Sélectionner un produit</label>
                         <select
+                            // Bind the select value to `selectedProductId` so the correct
+                            // option is shown when we pre-select a product programmatically.
+                            value={selectedProductId}
                             name={selectedProductId}
                             className="select select-bordered w-full border-2 rounded-lg focus:outline-none focus:ring-0 
                             focus:border-secondary transition-colors duration-300 pl-2 "
